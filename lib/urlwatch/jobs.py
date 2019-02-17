@@ -369,6 +369,7 @@ class BrowserJob(Job):
     __kind__ = 'browser'
 
     __required__ = ('navigate',)
+    __optional__ = ('options',)
 
     LOCATION_IS_URL = True
 
@@ -416,7 +417,7 @@ class BrowserJob(Job):
         def _get_content(browser):
             context = yield from browser.createIncognitoBrowserContext()
             page = yield from context.newPage()
-            yield from page.goto(self.navigate)
+            yield from page.goto(self.navigate, options=self.options)
             content = yield from page.content()
             yield from context.close()
             return content

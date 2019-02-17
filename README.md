@@ -301,12 +301,16 @@ and then use the HTML of the resulting page.
 
 Use the `browser` kind in the configuration and the `navigate` key to set the
 URL to retrieve. note that the normal `url` job keys are not supported
-for the `browser` job types at the moment, for example:
+for the `browser` job types at the moment. Configure the `options` key to pass
+[additional options](https://miyakogi.github.io/pyppeteer/reference.html#pyppeteer.page.Page.goto)
+to Pyppeteer. For example:
 
 ```yaml
 kind: browser
 name: "A Page With JavaScript"
 navigate: http://example.org/
+options:
+  waitUntil: networkidle0
 ```
 
 
