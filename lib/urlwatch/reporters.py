@@ -625,3 +625,36 @@ class SlackReporter(TextReporter):
 
     def chunkstring(self, string, length):
         return (string[0 + i:length + i] for i in range(0, len(string), length))
+        
+class WebhookReporter(TextReporter):
+    """Custom IFTTT webhook reporter for Google Sheets"""
+    
+    __kind__ = 'webhook'
+    
+    def submit(self):
+        result = None
+        for job_state in self.report.get_filtered_job_states(self.job_states):
+            pretty_name = job_state.job.pretty_name()
+            location = job_state.job.get_location()
+            content = self._format_content(job_state)
+            
+            res = self.post_report(pretty_name, location, content)
+            if res.status_code != requests.codes.ok or res is None:
+                result = res
+        return result
+ 
+    def post_report(self, pretty_name, location, content):
+        webhook_url = self.config['webhook_url']
+        post_data = {'value1': pretty_name, 'value2': location, 'value3': content}
+        result = requests.post(webhook_url, json=post_data)
+        
+        try:
+            if result.status_code == requests.codes.ok:
+                logger.info("Webhook response: ok")
+            else:
+                logger.error("Webhook error: {0}".format(result.text))
+        except ValueError:
+            logger.error(
+                "Failed to parse webook response. HTTP status code: {0}, content: {1}".format(result.status_code,
+                                                                                             result.content))
+        return result
