@@ -527,3 +527,23 @@ class RegexSub(FilterBase):
 
         # Default: Replace with empty string if no "repl" value is set
         return re.sub(subfilter.get('pattern'), subfilter.get('repl', ''), data)
+
+class Cov19RegularizeFilter(FilterBase):
+    """Remove items that vary with every request for COV19 state reporting sites"""
+
+    __kind__ = 'cov19regularize'
+
+    def filter(self, data, subfilter=None):
+
+        if subfilter is None:
+            method = 're'
+            options = {}
+        elif isinstance(subfilter, dict):
+            method = subfilter.pop('method')
+            options = subfilter
+        elif isinstance(subfilter, str):
+            method = subfilter
+            options = {}
+
+        from .cov19_regularize import regularize
+        return regularize(data, method=method, options=options)
